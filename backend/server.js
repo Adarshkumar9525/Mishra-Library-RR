@@ -108,10 +108,11 @@ app.use(
         return callback(null, true);
       }
 
-      // Allow configured origins or any local development origin (localhost / 127.0.0.1 on any port)
+      // Allow configured origins, local development, or any Vercel deployment (*.vercel.app)
       if (
         allowedOrigins.includes(origin) ||
-        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) ||
+        /\.vercel\.app$/.test(origin)
       ) {
         return callback(null, true);
       }
