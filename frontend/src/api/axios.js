@@ -2,12 +2,16 @@ import axios from "axios";
 
 let rawApiUrl = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").trim();
 
-// Auto-sanitize if env variable contains duplicated URL strings
-if (rawApiUrl.includes("http") && rawApiUrl.indexOf("http") !== rawApiUrl.lastIndexOf("http")) {
-  const firstUrlMatch = rawApiUrl.match(/https?:\/\/[^\/]+/);
-  if (firstUrlMatch) {
-    rawApiUrl = `${firstUrlMatch[0].replace(/\/$/, "")}/api`;
+// Robust Sanitizer: Extract protocol + domain and append single /api
+try {
+  if (rawApiUrl.includes("http")) {
+    const match = rawApiUrl.match(/(https?:\/\/[^\/\s]+)/i);
+    if (match && match[1]) {
+      rawApiUrl = `${match[1].replace(/\/$/, "")}/api`;
+    }
   }
+} catch {
+  // fallback to rawApiUrl if regex fails
 }
 
 const api = axios.create({
