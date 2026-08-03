@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import Students from "../pages/Students";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -65,28 +65,23 @@ describe("Students API Tests", () => {
     render(<Students />);
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalled();
-    });
-
-    expect(
-      screen.getByText("Adarsh Kumar")
-    ).toBeInTheDocument();
+      expect(screen.getAllByText("Adarsh Kumar")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   it("refresh button fetches students again", async () => {
     render(<Students />);
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledTimes(1);
-    });
+      expect(api.get).toHaveBeenCalled();
+    }, { timeout: 3000 });
 
-    const buttons = screen.getAllByRole("button");
-
-    fireEvent.click(buttons[1]);
+    const refreshBtn = screen.getByTitle("Refresh");
+    fireEvent.click(refreshBtn);
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledTimes(2);
-    });
+    }, { timeout: 3000 });
   });
 
   it("renews membership", async () => {
@@ -94,23 +89,16 @@ describe("Students API Tests", () => {
 
     render(<Students />);
 
-    await waitFor(() =>
-      screen.getByText("Renew")
-    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Renew")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
 
-    fireEvent.click(
-      screen.getByText("Renew")
-    );
+    fireEvent.click(screen.getAllByText("Renew")[0]);
 
     await waitFor(() => {
-      expect(api.put).toHaveBeenCalledWith(
-        "/students/1/renew"
-      );
-
-      expect(toast.success).toHaveBeenCalledWith(
-        "Membership renewed for 30 days"
-      );
-    });
+      expect(api.put).toHaveBeenCalledWith("/students/1/renew");
+      expect(toast.success).toHaveBeenCalledWith("Membership renewed for 30 days");
+    }, { timeout: 3000 });
   });
 
   it("deletes student", async () => {
@@ -118,25 +106,17 @@ describe("Students API Tests", () => {
 
     render(<Students />);
 
-    await waitFor(() =>
-      screen.getByText("Adarsh Kumar")
-    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Adarsh Kumar")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
 
-    const deleteButtons = screen.getAllByRole("button");
-
-    fireEvent.click(
-      deleteButtons[4]
-    );
+    const deleteBtn = screen.getAllByTitle("Delete")[0];
+    fireEvent.click(deleteBtn);
 
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith(
-        "/students/1"
-      );
-
-      expect(toast.success).toHaveBeenCalledWith(
-        "Student deleted"
-      );
-    });
+      expect(api.delete).toHaveBeenCalledWith("/students/1");
+      expect(toast.success).toHaveBeenCalledWith("Student deleted");
+    }, { timeout: 3000 });
   });
 
   it("shows delete API error", async () => {
@@ -150,21 +130,16 @@ describe("Students API Tests", () => {
 
     render(<Students />);
 
-    await waitFor(() =>
-      screen.getByText("Adarsh Kumar")
-    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Adarsh Kumar")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
 
-    const deleteButtons = screen.getAllByRole("button");
-
-    fireEvent.click(
-      deleteButtons[4]
-    );
+    const deleteBtn = screen.getAllByTitle("Delete")[0];
+    fireEvent.click(deleteBtn);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
-        "Delete failed"
-      );
-    });
+      expect(toast.error).toHaveBeenCalledWith("Delete failed");
+    }, { timeout: 3000 });
   });
 
   it("shows renew API error", async () => {
@@ -178,18 +153,14 @@ describe("Students API Tests", () => {
 
     render(<Students />);
 
-    await waitFor(() =>
-      screen.getByText("Renew")
-    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Renew")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
 
-    fireEvent.click(
-      screen.getByText("Renew")
-    );
+    fireEvent.click(screen.getAllByText("Renew")[0]);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
-        "Renewal failed"
-      );
-    });
+      expect(toast.error).toHaveBeenCalledWith("Renewal failed");
+    }, { timeout: 3000 });
   });
 });

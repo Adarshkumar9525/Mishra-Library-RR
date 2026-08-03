@@ -10,6 +10,7 @@ const getSettings = asyncHandler(async (req, res) => {
   if (!settings) {
     settings = await Settings.create({});
   }
+  res.setHeader("Cache-Control", "private, max-age=60");
   return ApiResponse.success(res, 200, "Settings fetched", settings);
 });
 

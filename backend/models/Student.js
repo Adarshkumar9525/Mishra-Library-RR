@@ -34,6 +34,11 @@ const studentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Database indexes for fast filter/sort queries (IXSCAN instead of COLLSCAN)
+studentSchema.index({ expiryDate: 1 });
+studentSchema.index({ joiningDate: 1 });
+studentSchema.index({ status: 1 });
+studentSchema.index({ feeStatus: 1, membershipStatus: 1 });
 studentSchema.index({ name: "text", mobile: "text", email: "text" });
 
 module.exports = mongoose.model("Student", studentSchema);

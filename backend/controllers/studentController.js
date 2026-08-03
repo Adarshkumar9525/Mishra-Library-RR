@@ -11,6 +11,7 @@ const getStudents = asyncHandler(async (req, res) => {
     page = 1,
     limit = 20,
     search,
+    name,
     status,
     feeStatus,
     membershipStatus,
@@ -22,7 +23,10 @@ const getStudents = asyncHandler(async (req, res) => {
   if (status) filter.status = status;
   if (feeStatus) filter.feeStatus = feeStatus;
   if (membershipStatus) filter.membershipStatus = membershipStatus;
-  if (search) {
+  if (name) {
+    // Search specifically by student name (case-insensitive partial match)
+    filter.name = { $regex: name, $options: "i" };
+  } else if (search) {
     filter.$or = [
       { name: { $regex: search, $options: "i" } },
       { mobile: { $regex: search, $options: "i" } },
@@ -34,7 +38,7 @@ const getStudents = asyncHandler(async (req, res) => {
   const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
 
   const [students, total] = await Promise.all([
-    Student.find(filter).sort(sort).skip(skip).limit(Number(limit)).populate("seat", "seatNumber"),
+    Student.find(filter).sort(sort).skip(skip).limit(Number(limit)).populate("seat", "seatNumber").lean(),
     Student.countDocuments(filter),
   ]);
 

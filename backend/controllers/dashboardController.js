@@ -13,20 +13,10 @@ const getStats = asyncHandler(async (req, res) => {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-  // A seat is "fully occupied" only when ALL four shifts are taken.
-  // If even one shift (e.g. evening) is free, the seat still counts as available for booking.
-  const fullyOccupiedFilter = {
-    "slots.morning.status": "occupied",
-    "slots.afternoon.status": "occupied",
-    "slots.evening.status": "occupied",
-    "slots.night.status": "occupied",
-  };
-
   const [
     totalStudents,
     activeStudents,
-    totalSeats,
-    fullyOccupiedSeats,
+    seatStatsAgg,
     pendingFeeCount,
     todayAdmissions,
     expiringSoon,
@@ -39,8 +29,52 @@ const getStats = asyncHandler(async (req, res) => {
   ] = await Promise.all([
     Student.countDocuments(),
     Student.countDocuments({ status: "active" }),
-    Seat.countDocuments(),
-    Seat.countDocuments(fullyOccupiedFilter),
+    Seat.aggregate([
+      {
+        $project: {
+          occupiedCount: {
+            $size: {
+              $filter: {
+                input: [
+                  "$slots.morning.status",
+                  "$slots.afternoon.status",
+                  "$slots.evening.status",
+                  "$slots.night.status",
+                ],
+                as: "st",
+                cond: { $eq: ["$$st", "occupied"] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          fullyOccupied: {
+            $sum: { $cond: [{ $eq: ["$occupiedCount", 4] }, 1, 0] },
+          },
+          partiallyOccupied: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$occupiedCount", 1] },
+                    { $lt: ["$occupiedCount", 4] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          fullyAvailable: {
+            $sum: { $cond: [{ $eq: ["$occupiedCount", 0] }, 1, 0] },
+          },
+        },
+      },
+    ]),
     Student.countDocuments({ feeStatus: { $in: ["due", "partial"] } }),
     Student.countDocuments({ joiningDate: { $gte: startOfToday } }),
     Student.countDocuments({ expiryDate: { $gte: now, $lte: sevenDaysFromNow } }),
@@ -57,19 +91,25 @@ const getStats = asyncHandler(async (req, res) => {
       { $match: { status: "success" } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]),
-    Student.find().sort({ createdAt: -1 }).limit(5).select("name mobile seatNumber timing joiningDate"),
-    Payment.find().sort({ paidAt: -1 }).limit(5).populate("student", "name seatNumber"),
+    Student.find().sort({ createdAt: -1 }).limit(5).select("name mobile seatNumber timing joiningDate").lean(),
+    Payment.find().sort({ paidAt: -1 }).limit(5).populate("student", "name seatNumber").lean(),
   ]);
 
-  const totalSeatsCount = totalSeats || 100;
+  const seatStats = seatStatsAgg[0] || { total: 100, fullyOccupied: 0, partiallyOccupied: 0, fullyAvailable: 100 };
+  const totalSeatsCount = seatStats.total || 100;
+  const fullyOccupied = seatStats.fullyOccupied || 0;
+  const partiallyOccupied = seatStats.partiallyOccupied || 0;
+  const fullyAvailable = seatStats.fullyAvailable || 0;
 
   return ApiResponse.success(res, 200, "Dashboard stats fetched", {
     totalStudents,
     activeStudents,
     totalSeats: totalSeatsCount,
-    // "occupied" = no shift left free on that seat; "available" = at least one shift still bookable
-    occupiedSeats: fullyOccupiedSeats,
-    availableSeats: totalSeatsCount - fullyOccupiedSeats,
+    occupiedSeats: fullyOccupied,
+    fullyOccupiedSeats: fullyOccupied,
+    partiallyOccupiedSeats: partiallyOccupied,
+    availableSeats: fullyAvailable,
+    fullyAvailableSeats: fullyAvailable,
     pendingFeeCount,
     todayAdmissions,
     expiringSoon,
@@ -111,22 +151,32 @@ const getChartData = asyncHandler(async (req, res) => {
     { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
-  // Slot-level occupancy across all seats x all 4 shifts (max 400 slots for 100 seats).
-  // This is what actually reflects "how full is each shift", unlike a single seat status.
   const seatsByStatus = await Seat.aggregate([
     { $project: { slotsArray: { $objectToArray: "$slots" } } },
     { $unwind: "$slotsArray" },
     { $group: { _id: "$slotsArray.v.status", count: { $sum: 1 } } },
   ]);
 
-  // Occupied-slot breakdown per shift (morning/afternoon/evening/night) - useful for
-  // seeing which shift is busiest.
-  const occupancyByShift = await Seat.aggregate([
+  // Occupied-slot breakdown per shift (morning/afternoon/evening/night)
+  const rawShiftOccupancy = await Seat.aggregate([
     { $project: { slotsArray: { $objectToArray: "$slots" } } },
     { $unwind: "$slotsArray" },
     { $match: { "slotsArray.v.status": "occupied" } },
     { $group: { _id: "$slotsArray.k", count: { $sum: 1 } } },
   ]);
+
+  const ALL_SHIFTS = ["morning", "afternoon", "evening", "night"];
+  const shiftMap = rawShiftOccupancy.reduce((acc, curr) => {
+    acc[curr._id] = curr.count;
+    return acc;
+  }, {});
+
+  // Always return all 4 shifts, defaulting missing ones to 0
+  const occupancyByShift = ALL_SHIFTS.map((shift) => ({
+    shift,
+    _id: shift,
+    count: shiftMap[shift] || 0,
+  }));
 
   const paymentsByMode = await Payment.aggregate([
     { $match: { status: "success" } },

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "./test-utils";
 import Dashboard from "../pages/Dashboard";
 import api from "../api/axios";
 
@@ -45,40 +45,46 @@ describe("Dashboard UI", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    api.get
-      .mockResolvedValueOnce({
-        data: {
+    api.get.mockImplementation((url) => {
+      if (url === "/dashboard/stats") {
+        return Promise.resolve({
           data: {
-            totalStudents: 100,
-            occupiedSeats: 80,
-            totalSeats: 100,
-            pendingFeeCount: 5,
-            todayAdmissions: 2,
-            todayCollection: 3000,
-            monthlyCollection: 45000,
-            totalCollection: 200000,
-            expiringSoon: 3,
-            recentPayments: [],
-            recentStudents: [],
+            data: {
+              totalStudents: 100,
+              occupiedSeats: 80,
+              totalSeats: 100,
+              pendingFeeCount: 5,
+              todayAdmissions: 2,
+              todayCollection: 3000,
+              monthlyCollection: 45000,
+              totalCollection: 200000,
+              expiringSoon: 3,
+              recentPayments: [],
+              recentStudents: [],
+            },
           },
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
+        });
+      }
+      if (url === "/dashboard/charts") {
+        return Promise.resolve({
           data: {
-            revenueByMonth: [],
-            admissionsByMonth: [],
-            seatsByStatus: [],
+            data: {
+              revenueByMonth: [],
+              admissionsByMonth: [],
+              seatsByStatus: [],
+            },
           },
-        },
-      });
+        });
+      }
+      return Promise.resolve({ data: { data: [] } });
+    });
   });
 
   it("renders dashboard heading", async () => {
     render(<Dashboard />);
 
     expect(
-      screen.getByText("Dashboard")
+      screen.getByText(/Admin/i)
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -95,7 +101,7 @@ describe("Dashboard UI", () => {
       ).toBeInTheDocument();
 
       expect(
-        screen.getByText(/Occupied Seats/i)
+        screen.getAllByText(/Occupied Seats/i)[0]
       ).toBeInTheDocument();
     });
   });

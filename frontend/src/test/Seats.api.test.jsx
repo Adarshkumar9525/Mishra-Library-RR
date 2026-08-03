@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import Seats from "../pages/Seats";
 import api from "../api/axios";
 
@@ -119,7 +119,9 @@ describe("Seats API Tests", () => {
         name: /occupied/i,
       })
     );
-expect(screen.getByText("1")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByText("1")[0]).toBeInTheDocument();
+    });
   });
 
   it("shows student in table view", async () => {

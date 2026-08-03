@@ -95,7 +95,7 @@ const app = express();
 // ==============================
 // CORS Configuration
 // ==============================
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173,http://localhost:5174")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -104,7 +104,15 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (Postman, mobile apps, curl)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Allow configured origins or any local development origin (localhost / 127.0.0.1 on any port)
+      if (
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+      ) {
         return callback(null, true);
       }
 
@@ -115,9 +123,12 @@ app.use(
   })
 );
 
+const compression = require("compression");
+
 // ==============================
 // Middleware
 // ==============================
+app.use(compression()); // Gzip/Brotli response payload compression
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 

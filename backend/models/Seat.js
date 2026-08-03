@@ -54,4 +54,9 @@ seatSchema.methods.isAvailableFor = function (timing) {
   return timings.every((t) => this.slots[t].status === "available");
 };
 
+seatSchema.index({ "slots.morning.status": 1 });
+seatSchema.index({ "slots.afternoon.status": 1 });
+seatSchema.index({ "slots.evening.status": 1 });
+seatSchema.index({ "slots.night.status": 1 });
+
 module.exports = mongoose.model("Seat", seatSchema);

@@ -11,12 +11,15 @@ const STUDENT_FIELDS = "name mobile expiryDate feeStatus";
 // @access  Private
 const getSeats = asyncHandler(async (req, res) => {
   const seats = await Seat.find()
+    .select("-history")
     .sort({ seatNumber: 1 })
     .populate("slots.morning.student", STUDENT_FIELDS)
     .populate("slots.afternoon.student", STUDENT_FIELDS)
     .populate("slots.evening.student", STUDENT_FIELDS)
-    .populate("slots.night.student", STUDENT_FIELDS);
+    .populate("slots.night.student", STUDENT_FIELDS)
+    .lean();
 
+  res.setHeader("Cache-Control", "private, max-age=15");
   return ApiResponse.success(res, 200, "Seats fetched", seats);
 });
 

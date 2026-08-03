@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import Students from "../pages/Students";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -132,6 +132,20 @@ describe("Students Page - UI", () => {
     });
 
     expect(input.value).toBe("Rahul");
+  });
+
+  it("initializes search input from URL query parameter", async () => {
+    api.get.mockResolvedValue({
+      data: {
+        data: [],
+        meta: { totalPages: 1 },
+      },
+    });
+
+    render(<Students />, { route: "/students?search=rohit" });
+
+    const input = screen.getByPlaceholderText(/Search by name/i);
+    expect(input.value).toBe("rohit");
   });
 
   it("shows empty state", async () => {

@@ -18,6 +18,23 @@ export default defineConfig({
     port: 5173,
   },
 
+  build: {
+    target: "esnext",
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-recharts": ["recharts"],
+          "vendor-xlsx": ["xlsx", "file-saver"],
+          "vendor-icons": ["react-icons"],
+          "vendor-query": ["@tanstack/react-query"],
+        },
+      },
+    },
+  },
+
   test: {
     globals: true,
     environment: "jsdom",

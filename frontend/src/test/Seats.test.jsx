@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import Seats from "../pages/Seats";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -98,12 +98,12 @@ describe("Seats UI", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("1")
+        screen.getAllByText("1")[1]
       ).toBeInTheDocument();
     });
 
     fireEvent.click(
-      screen.getByText("1")
+      screen.getAllByText("1")[1]
     );
 
     expect(
@@ -120,11 +120,11 @@ describe("Seats UI", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("1")
+        screen.getAllByText("1")[1]
       ).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText("1"));
+    fireEvent.click(screen.getAllByText("1")[1]);
 
     fireEvent.click(
       screen.getByRole("button", {

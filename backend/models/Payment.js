@@ -10,11 +10,14 @@ const paymentSchema = new mongoose.Schema(
     remarks: { type: String, trim: true },
     receiptNumber: { type: String, unique: true },
     paidAt: { type: Date, default: Date.now },
+    editedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
 // Prevent duplicate payment for same student + same month
 paymentSchema.index({ student: 1, forMonth: 1 }, { unique: true });
+paymentSchema.index({ paidAt: -1 });
+paymentSchema.index({ student: 1, paidAt: -1 });
 
 module.exports = mongoose.model("Payment", paymentSchema);

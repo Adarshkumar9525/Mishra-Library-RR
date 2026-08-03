@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "./test-utils";
 import { MemoryRouter } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
@@ -33,11 +33,7 @@ describe("Navbar Component", () => {
   });
 
   it("renders search input", () => {
-    render(
-      <MemoryRouter>
-        <Navbar />
-      </MemoryRouter>
-    );
+    render(<Navbar />);
 
     expect(
       screen.getByPlaceholderText(/Search students/i)
@@ -45,37 +41,25 @@ describe("Navbar Component", () => {
   });
 
   it("shows admin initial", () => {
-    render(
-      <MemoryRouter>
-        <Navbar />
-      </MemoryRouter>
-    );
+    render(<Navbar />);
 
-    expect(screen.getByText("A")).toBeInTheDocument();
+    expect(screen.getByText("AK")).toBeInTheDocument();
   });
 
   it("opens profile menu", () => {
-    render(
-      <MemoryRouter>
-        <Navbar />
-      </MemoryRouter>
-    );
+    render(<Navbar />);
 
-    fireEvent.click(screen.getByText("A"));
+    fireEvent.click(screen.getByText("AK"));
 
-    expect(screen.getByText("Adarsh Kumar")).toBeInTheDocument();
+    expect(screen.getAllByText("Adarsh Kumar")[0]).toBeInTheDocument();
     expect(screen.getByText("adarsh@test.com")).toBeInTheDocument();
   });
 
   it("logout works", () => {
-    render(
-      <MemoryRouter>
-        <Navbar />
-      </MemoryRouter>
-    );
+    render(<Navbar />);
 
-    fireEvent.click(screen.getByText("A"));
-    fireEvent.click(screen.getByText(/Logout/i));
+    fireEvent.click(screen.getByText("AK"));
+    fireEvent.click(screen.getByText(/Sign Out/i));
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith("/login");

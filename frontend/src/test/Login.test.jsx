@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import { MemoryRouter } from "react-router-dom";
 import Login from "../pages/Login";
 
@@ -37,30 +37,22 @@ describe("Login Page", () => {
   });
 
   it("renders login form", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    render(<Login />);
 
     expect(
-  screen.getByRole("heading", { name: /Mishra Library/i })
-).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/admin/i)).toBeInTheDocument();
+      screen.getByRole("heading", { name: /Mishra Library/i })
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/admin@mishralibrary.com/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
-    expect(screen.getByRole("button")).toHaveTextContent("Sign In");
+    expect(screen.getByRole("button", { name: /Sign in/i })).toBeInTheDocument();
   });
 
   it("logs in successfully", async () => {
     mockLogin.mockResolvedValueOnce({});
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    render(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText(/admin/i), {
+    fireEvent.change(screen.getByPlaceholderText(/admin@mishralibrary.com/i), {
       target: { value: "admin@test.com" },
     });
 
@@ -68,7 +60,7 @@ describe("Login Page", () => {
       target: { value: "123456" },
     });
 
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole("button", { name: /Sign in/i }));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalled();
@@ -81,13 +73,9 @@ describe("Login Page", () => {
       () => new Promise((resolve) => setTimeout(resolve, 500))
     );
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    render(<Login />);
 
-    fireEvent.change(screen.getByPlaceholderText(/admin/i), {
+    fireEvent.change(screen.getByPlaceholderText(/admin@mishralibrary.com/i), {
       target: { value: "admin@test.com" },
     });
 
@@ -95,7 +83,7 @@ describe("Login Page", () => {
       target: { value: "123456" },
     });
 
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole("button", { name: /Sign in/i }));
 
     expect(screen.getByText(/Signing in/i)).toBeInTheDocument();
   });

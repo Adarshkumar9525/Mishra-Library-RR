@@ -44,7 +44,7 @@ const getPayments = asyncHandler(async (req, res) => {
 // @route   POST /api/payments
 // @access  Private
 const createPayment = asyncHandler(async (req, res) => {
-  const { student: studentId, amount, mode, forMonth, remarks } = req.body;
+  const { student: studentId, amount, mode, forMonth, remarks, paidAt } = req.body;
 
   const student = await Student.findById(studentId);
   if (!student) return ApiResponse.error(res, 404, "Student not found");
@@ -63,6 +63,7 @@ const createPayment = asyncHandler(async (req, res) => {
     forMonth,
     remarks,
     receiptNumber,
+    paidAt: paidAt ? new Date(paidAt) : Date.now(),
   });
 
   // Update student fee status - if they've paid for the current cycle
@@ -70,6 +71,79 @@ const createPayment = asyncHandler(async (req, res) => {
   await student.save();
 
   return ApiResponse.success(res, 201, "Payment recorded successfully", payment);
+});
+
+// @desc    Update existing payment record
+// @route   PUT /api/payments/:id
+// @access  Private
+const updatePayment = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { amount, mode, forMonth, remarks, paidAt } = req.body;
+
+  const payment = await Payment.findById(id);
+  if (!payment) return ApiResponse.error(res, 404, "Payment not found");
+
+  // Validate amount if provided
+  if (amount !== undefined) {
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return ApiResponse.error(res, 400, "Amount must be a positive number");
+    }
+    payment.amount = numAmount;
+  }
+
+  // Validate mode if provided
+  if (mode !== undefined) {
+    const validModes = ["cash", "upi", "card", "bank-transfer"];
+    if (!validModes.includes(mode)) {
+      return ApiResponse.error(res, 400, "Invalid payment mode");
+    }
+    payment.mode = mode;
+  }
+
+  // Check and update forMonth if provided
+  if (forMonth !== undefined && forMonth !== payment.forMonth) {
+    if (typeof forMonth !== "string" || !forMonth.match(/^\d{4}-\d{2}$/)) {
+      return ApiResponse.error(res, 400, "forMonth must be in YYYY-MM format");
+    }
+
+    const existing = await Payment.findOne({
+      student: payment.student,
+      forMonth,
+      _id: { $ne: payment._id },
+    });
+
+    if (existing) {
+      return ApiResponse.error(res, 409, `A payment for ${forMonth} already exists for this student`);
+    }
+
+    payment.forMonth = forMonth;
+  }
+
+  if (paidAt !== undefined && paidAt) {
+    const parsedDate = new Date(paidAt);
+    if (isNaN(parsedDate.getTime())) {
+      return ApiResponse.error(res, 400, "Invalid payment date");
+    }
+    payment.paidAt = parsedDate;
+  }
+
+  if (remarks !== undefined) {
+    payment.remarks = remarks;
+  }
+
+  payment.editedAt = new Date();
+  await payment.save();
+  await payment.populate("student", "name mobile seatNumber");
+
+  // Keep student's fee status consistent
+  const student = await Student.findById(payment.student);
+  if (student) {
+    student.feeStatus = "paid";
+    await student.save();
+  }
+
+  return ApiResponse.success(res, 200, "Payment updated successfully", payment);
 });
 
 // @desc    Delete payment record
@@ -120,6 +194,7 @@ const getCollectionSummary = asyncHandler(async (req, res) => {
 module.exports = {
   getPayments,
   createPayment,
+  updatePayment,
   deletePayment,
   getStudentPaymentHistory,
   getCollectionSummary,

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getPayments,
   createPayment,
+  updatePayment,
   deletePayment,
   getStudentPaymentHistory,
   getCollectionSummary,
@@ -14,6 +15,6 @@ router.use(protect);
 router.route("/").get(getPayments).post(createPayment);
 router.get("/summary", getCollectionSummary);
 router.get("/student/:studentId", getStudentPaymentHistory);
-router.delete("/:id", deletePayment);
+router.route("/:id").put(updatePayment).delete(deletePayment);
 
 module.exports = router;

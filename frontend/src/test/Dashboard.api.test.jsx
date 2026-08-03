@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "./test-utils";
 import Dashboard from "../pages/Dashboard";
 import api from "../api/axios";
 
@@ -42,57 +42,63 @@ describe("Dashboard API Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    api.get
-      .mockResolvedValueOnce({
-        data: {
+    api.get.mockImplementation((url) => {
+      if (url === "/dashboard/stats") {
+        return Promise.resolve({
           data: {
-            totalStudents: 120,
-            occupiedSeats: 90,
-            totalSeats: 100,
-            pendingFeeCount: 6,
-            todayAdmissions: 3,
-            todayCollection: 5000,
-            monthlyCollection: 65000,
-            totalCollection: 500000,
-            expiringSoon: 2,
-            recentPayments: [
-              {
-                _id: "1",
-                amount: 800,
-                student: {
-                  name: "Adarsh",
-                  seatNumber: 5,
+            data: {
+              totalStudents: 120,
+              occupiedSeats: 90,
+              totalSeats: 100,
+              pendingFeeCount: 6,
+              todayAdmissions: 3,
+              todayCollection: 5000,
+              monthlyCollection: 65000,
+              totalCollection: 500000,
+              expiringSoon: 2,
+              recentPayments: [
+                {
+                  _id: "1",
+                  amount: 800,
+                  student: {
+                    name: "Adarsh",
+                    seatNumber: 5,
+                  },
                 },
-              },
-            ],
-            recentStudents: [],
+              ],
+              recentStudents: [],
+            },
           },
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
+        });
+      }
+      if (url === "/dashboard/charts") {
+        return Promise.resolve({
           data: {
-            revenueByMonth: [
-              {
-                _id: { month: 1 },
-                total: 10000,
-              },
-            ],
-            admissionsByMonth: [
-              {
-                _id: { month: 1 },
-                count: 10,
-              },
-            ],
-            seatsByStatus: [
-              {
-                _id: "Occupied",
-                count: 90,
-              },
-            ],
+            data: {
+              revenueByMonth: [
+                {
+                  _id: { month: 1 },
+                  total: 10000,
+                },
+              ],
+              admissionsByMonth: [
+                {
+                  _id: { month: 1 },
+                  count: 10,
+                },
+              ],
+              seatsByStatus: [
+                {
+                  _id: "Occupied",
+                  count: 90,
+                },
+              ],
+            },
           },
-        },
-      });
+        });
+      }
+      return Promise.resolve({ data: { data: [] } });
+    });
   });
 
   it("calls dashboard APIs", async () => {
@@ -126,12 +132,12 @@ describe("Dashboard API Tests", () => {
     });
   });
 
-  it("renders bar chart", async () => {
+  it("renders line chart", async () => {
     render(<Dashboard />);
 
     await waitFor(() => {
       expect(
-        screen.getByTestId("bar-chart")
+        screen.getByTestId("line-chart")
       ).toBeInTheDocument();
     });
   });
@@ -162,7 +168,7 @@ describe("Dashboard API Tests", () => {
     });
 
     expect(
-      screen.getByText("Dashboard")
+      screen.getByText(/Admin/i)
     ).toBeInTheDocument();
   });
 });
