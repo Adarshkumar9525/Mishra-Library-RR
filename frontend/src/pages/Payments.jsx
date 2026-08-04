@@ -423,10 +423,10 @@ const Payments = () => {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-y-auto border border-slate-100 dark:border-slate-700"
-            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-y-auto border border-slate-100 dark:border-slate-700 modal-card-height my-auto sm:my-0"
+            style={{ maxHeight: "90vh", WebkitOverflowScrolling: "touch" }}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
               <div>

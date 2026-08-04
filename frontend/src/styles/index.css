@@ -181,3 +181,9 @@
     margin: 12mm;
   }
 }
+
+@supports (height: 100dvh) {
+  .modal-card-height {
+    max-height: 90dvh;
+  }
+}
