@@ -423,22 +423,23 @@ const Payments = () => {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center sm:text-left">
-            <div
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-hidden border border-slate-100 dark:border-slate-700 my-auto sm:my-8 text-left transition-all transform"
-              onClick={(e) => e.stopPropagation()}
-            >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+        <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 h-[88vh] max-h-[88dvh] sm:h-auto sm:max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
               <div>
-                <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">
+                <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base sm:text-lg">
                   {editingPayment ? "Edit Payment" : "Add Payment"}
                 </h2>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-400 dark:text-slate-500">
                   {editingPayment ? "Update payment details" : "Record a fee collection"}
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setModalOpen(false);
                   setEditingPayment(null);
@@ -449,281 +450,288 @@ const Payments = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                  Student Name {!editingPayment && <span className="text-red-500">*</span>}
-                </label>
+            {/* Form Container */}
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div
+                className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 touch-pan-y"
+                style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}
+              >
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
+                    Student Name {!editingPayment && <span className="text-red-500">*</span>}
+                  </label>
 
-                {editingPayment ? (
-                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold flex items-center justify-between">
-                    <span>Editing payment for {selectedStudent?.name || "Student"}</span>
-                    <span className="text-xs bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-normal">Read-only</span>
-                  </div>
-                ) : (
-                  <div ref={dropdownRef} className="relative">
-                    <div className="relative flex items-center">
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        required
-                        placeholder="Type student name to search..."
-                        value={studentSearch}
-                        onChange={(e) => {
-                          setStudentSearch(e.target.value);
-                          if (selectedStudent && e.target.value !== selectedStudent.name) {
-                            setSelectedStudent(null);
-                            setForm((prev) => ({ ...prev, student: "" }));
-                          }
-                        }}
-                        onFocus={() => {
-                          if (!selectedStudent) {
-                            setDropdownOpen(true);
-                          }
-                        }}
-                        onKeyDown={handleKeyDown}
-                        aria-expanded={dropdownOpen}
-                        aria-autocomplete="list"
-                        className="input-field pr-10"
-                      />
+                  {editingPayment ? (
+                    <div className="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold flex items-center justify-between">
+                      <span>Editing payment for {selectedStudent?.name || "Student"}</span>
+                      <span className="text-xs bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-normal">Read-only</span>
+                    </div>
+                  ) : (
+                    <div ref={dropdownRef} className="relative">
+                      <div className="relative flex items-center">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          required
+                          placeholder="Type student name to search..."
+                          value={studentSearch}
+                          onChange={(e) => {
+                            setStudentSearch(e.target.value);
+                            if (selectedStudent && e.target.value !== selectedStudent.name) {
+                              setSelectedStudent(null);
+                              setForm((prev) => ({ ...prev, student: "" }));
+                            }
+                          }}
+                          onFocus={() => {
+                            if (!selectedStudent) {
+                              setDropdownOpen(true);
+                            }
+                          }}
+                          onKeyDown={handleKeyDown}
+                          aria-expanded={dropdownOpen}
+                          aria-autocomplete="list"
+                          className="input-field pr-10"
+                        />
 
-                      {searching ? (
-                        <div className="absolute right-3 flex items-center justify-center pointer-events-none">
-                          <div className="w-4 h-4 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-                        </div>
-                      ) : selectedStudent ? (
-                        <button
-                          type="button"
-                          onClick={handleClearStudent}
-                          className="absolute right-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-full transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
-                          title="Clear student selection"
+                        {searching ? (
+                          <div className="absolute right-3 flex items-center justify-center pointer-events-none">
+                            <div className="w-4 h-4 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        ) : selectedStudent ? (
+                          <button
+                            type="button"
+                            onClick={handleClearStudent}
+                            className="absolute right-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-full transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                            title="Clear student selection"
+                          >
+                            <MdClose size={16} />
+                          </button>
+                        ) : (
+                          <div className="absolute right-3 text-slate-400 dark:text-slate-500 pointer-events-none">
+                            <MdSearch size={18} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Autocomplete Dropdown */}
+                      {dropdownOpen && (
+                        <div
+                          role="listbox"
+                          className="absolute z-50 left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg dark:shadow-none py-1 text-sm divide-y divide-slate-50 dark:divide-slate-700/60"
                         >
-                          <MdClose size={16} />
-                        </button>
-                      ) : (
-                        <div className="absolute right-3 text-slate-400 dark:text-slate-500 pointer-events-none">
-                          <MdSearch size={18} />
+                          {searching ? (
+                            <div className="py-3 px-4 text-slate-400 dark:text-slate-500 text-center flex items-center justify-center gap-2">
+                              <div className="w-4 h-4 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                              Searching students...
+                            </div>
+                          ) : studentResults.length === 0 ? (
+                            <div className="py-3 px-4 text-slate-400 dark:text-slate-500 text-center font-medium">
+                              No student found
+                            </div>
+                          ) : (
+                            studentResults.map((s, index) => (
+                              <div
+                                key={s._id}
+                                role="option"
+                                aria-selected={highlightedIndex === index}
+                                onClick={() => handleSelectStudent(s)}
+                                onMouseEnter={() => setHighlightedIndex(index)}
+                                className={`px-4 py-3 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1 transition-colors touch-manipulation min-h-[44px] ${
+                                  highlightedIndex === index
+                                    ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-medium"
+                                    : "hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200"
+                                }`}
+                              >
+                                <div>
+                                  <span className="font-semibold text-slate-800 dark:text-slate-100">
+                                    {s.name}
+                                  </span>
+                                  {s.mobile && (
+                                    <span className="text-xs text-slate-400 dark:text-slate-500 ml-2 font-normal">
+                                      📱 {s.mobile}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                  {s.seatNumber && (
+                                    <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">
+                                      Seat #{s.seatNumber}
+                                    </span>
+                                  )}
+                                  {s.timing && (
+                                    <span className="capitalize bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:indigo-400 px-2 py-0.5 rounded font-medium">
+                                      {s.timing}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>
+                  )}
+                </div>
 
-                    {/* Autocomplete Dropdown */}
-                    {dropdownOpen && (
-                      <div
-                        role="listbox"
-                        className="absolute z-50 left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg dark:shadow-none py-1 text-sm divide-y divide-slate-50 dark:divide-slate-700/60"
-                      >
-                        {searching ? (
-                          <div className="py-3 px-4 text-slate-400 dark:text-slate-500 text-center flex items-center justify-center gap-2">
-                            <div className="w-4 h-4 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-                            Searching students...
-                          </div>
-                        ) : studentResults.length === 0 ? (
-                          <div className="py-3 px-4 text-slate-400 dark:text-slate-500 text-center font-medium">
-                            No student found
-                          </div>
-                        ) : (
-                          studentResults.map((s, index) => (
-                            <div
-                              key={s._id}
-                              role="option"
-                              aria-selected={highlightedIndex === index}
-                              onClick={() => handleSelectStudent(s)}
-                              onMouseEnter={() => setHighlightedIndex(index)}
-                              className={`px-4 py-3 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1 transition-colors touch-manipulation min-h-[44px] ${
-                                highlightedIndex === index
-                                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-medium"
-                                  : "hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200"
-                              }`}
-                            >
-                              <div>
-                                <span className="font-semibold text-slate-800 dark:text-slate-100">
-                                  {s.name}
-                                </span>
-                                {s.mobile && (
-                                  <span className="text-xs text-slate-400 dark:text-slate-500 ml-2 font-normal">
-                                    📱 {s.mobile}
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                                {s.seatNumber && (
-                                  <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium">
-                                    Seat #{s.seatNumber}
-                                  </span>
-                                )}
-                                {s.timing && (
-                                  <span className="capitalize bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-medium">
-                                    {s.timing}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Selected Student Details Card */}
-              {selectedStudent && (
-                <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="flex items-center justify-between font-medium text-slate-700 dark:text-slate-200">
-                    <span>Student Information</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                      Selected
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div>
-                      <span className="text-slate-400 dark:text-slate-500 block">Name:</span>
-                      <span className="font-medium text-slate-800 dark:text-slate-100">
-                        {selectedStudent.name}
+                {/* Selected Student Details Card */}
+                {selectedStudent && (
+                  <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center justify-between font-medium text-slate-700 dark:text-slate-200">
+                      <span>Student Information</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        Selected
                       </span>
                     </div>
-                    <div>
-                      <span className="text-slate-400 dark:text-slate-500 block">Phone / Mobile:</span>
-                      <span className="font-medium text-slate-800 dark:text-slate-100">
-                        {selectedStudent.mobile || "N/A"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 dark:text-slate-500 block">Seat Number:</span>
-                      <span className="font-medium text-slate-800 dark:text-slate-100">
-                        {selectedStudent.seatNumber
-                          ? `#${selectedStudent.seatNumber}`
-                          : "Unassigned"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 dark:text-slate-500 block">Shift / Timing:</span>
-                      <span className="font-medium text-slate-800 dark:text-slate-100 capitalize">
-                        {selectedStudent.timing || "N/A"}
-                      </span>
-                    </div>
-                    {selectedStudent.monthlyFee && (
-                      <div className="col-span-2 border-t border-slate-200/60 dark:border-slate-700/60 pt-1.5 flex justify-between items-center">
-                        <span className="text-slate-500 dark:text-slate-400">Standard Monthly Fee:</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-100">
-                          ₹{selectedStudent.monthlyFee}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div>
+                        <span className="text-slate-400 dark:text-slate-500 block">Name:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-100">
+                          {selectedStudent.name}
                         </span>
                       </div>
-                    )}
+                      <div>
+                        <span className="text-slate-400 dark:text-slate-500 block">Phone / Mobile:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-100">
+                          {selectedStudent.mobile || "N/A"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 dark:text-slate-500 block">Seat Number:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-100">
+                          {selectedStudent.seatNumber
+                            ? `#${selectedStudent.seatNumber}`
+                            : "Unassigned"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 dark:text-slate-500 block">Shift / Timing:</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-100 capitalize">
+                          {selectedStudent.timing || "N/A"}
+                        </span>
+                      </div>
+                      {selectedStudent.monthlyFee && (
+                        <div className="col-span-2 border-t border-slate-200/60 dark:border-slate-700/60 pt-1.5 flex justify-between items-center">
+                          <span className="text-slate-500 dark:text-slate-400">Standard Monthly Fee:</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-100">
+                            ₹{selectedStudent.monthlyFee}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
+                      Amount (₹)
+                    </label>
+
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={form.amount}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          amount: e.target.value,
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
+                      Mode
+                    </label>
+
+                    <select
+                      value={form.mode}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          mode: e.target.value,
+                        })
+                      }
+                      className="input-field"
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="upi">UPI</option>
+                      <option value="card">Card</option>
+                      <option value="bank-transfer">
+                        Bank Transfer
+                      </option>
+                    </select>
                   </div>
                 </div>
-              )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                    Amount (₹)
-                  </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
+                      Payment Date (Date/Month/Year)
+                    </label>
 
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={form.amount}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        amount: e.target.value,
-                      })
-                    }
-                    className="input-field"
-                  />
+                    <input
+                      type="date"
+                      required
+                      value={form.paidAt}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setForm((prev) => ({
+                          ...prev,
+                          paidAt: val,
+                          forMonth: val ? val.slice(0, 7) : prev.forMonth,
+                        }));
+                      }}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
+                      For Month (Cycle)
+                    </label>
+
+                    <input
+                      type="month"
+                      required
+                      value={form.forMonth}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          forMonth: e.target.value,
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                    Mode
-                  </label>
-
-                  <select
-                    value={form.mode}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        mode: e.target.value,
-                      })
-                    }
-                    className="input-field"
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="upi">UPI</option>
-                    <option value="card">Card</option>
-                    <option value="bank-transfer">
-                      Bank Transfer
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                    Payment Date (Date/Month/Year)
+                    Remarks
                   </label>
 
                   <input
-                    type="date"
-                    required
-                    value={form.paidAt}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setForm((prev) => ({
-                        ...prev,
-                        paidAt: val,
-                        forMonth: val ? val.slice(0, 7) : prev.forMonth,
-                      }));
-                    }}
-                    className="input-field"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                    For Month (Cycle)
-                  </label>
-
-                  <input
-                    type="month"
-                    required
-                    value={form.forMonth}
+                    value={form.remarks}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        forMonth: e.target.value,
+                        remarks: e.target.value,
                       })
                     }
                     className="input-field"
+                    placeholder="Optional note"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
-                  Remarks
-                </label>
-
-                <input
-                  value={form.remarks}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      remarks: e.target.value,
-                    })
-                  }
-                  className="input-field"
-                  placeholder="Optional note"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
+              {/* Pinned Action Footer */}
+              <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 flex gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.3)]">
                 <button
                   type="button"
                   onClick={() => {
@@ -748,7 +756,6 @@ const Payments = () => {
                 </button>
               </div>
             </form>
-            </div>
           </div>
         </div>
       )}

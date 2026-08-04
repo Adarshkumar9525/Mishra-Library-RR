@@ -220,49 +220,49 @@ const Seats = () => {
       {/* Seat Detail Modal */}
       {selectedSeat && (
         <div
-          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-40 overflow-y-auto"
+          className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={() => setSelectedSeat(null)}
         >
-          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center sm:text-left">
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[88dvh] sm:max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+              <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
+                <MdEventSeat size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base">Seat #{selectedSeat.seatNumber}</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
+              </div>
+            </div>
             <div
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm overflow-hidden border border-slate-100 dark:border-slate-700 my-auto sm:my-8 text-left transition-all transform"
-              onClick={(e) => e.stopPropagation()}
+              className="p-5 space-y-2.5 text-sm overflow-y-auto flex-1 min-h-0 touch-pan-y"
+              style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}
             >
-              <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700">
-                <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
-                  <MdEventSeat size={22} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base">Seat #{selectedSeat.seatNumber}</h3>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
-                </div>
-              </div>
-              <div className="p-5 space-y-2.5 text-sm">
-                {TIMINGS.map((t) => {
-                  const status = statusFor(selectedSeat, t.key);
-                  const student = studentFor(selectedSeat, t.key);
-                  return (
-                    <div key={t.key} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 rounded-xl px-3.5 py-2.5">
-                      <div>
-                        <p className="font-semibold text-slate-700 dark:text-slate-200">{t.label}</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{student?.name || "Vacant"}</p>
-                      </div>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
-                        {status}
-                      </span>
+              {TIMINGS.map((t) => {
+                const status = statusFor(selectedSeat, t.key);
+                const student = studentFor(selectedSeat, t.key);
+                return (
+                  <div key={t.key} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 rounded-xl px-3.5 py-2.5">
+                    <div>
+                      <p className="font-semibold text-slate-700 dark:text-slate-200">{t.label}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{student?.name || "Vacant"}</p>
                     </div>
-                  );
-                })}
-
-                <div className="pt-3">
-                  <button
-                    onClick={() => setSelectedSeat(null)}
-                    className="btn-secondary w-full"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
+                      {status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+              <button
+                onClick={() => setSelectedSeat(null)}
+                className="btn-secondary w-full"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

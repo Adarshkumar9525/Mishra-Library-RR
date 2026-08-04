@@ -89,25 +89,33 @@ const StudentModal = ({ student, onClose, onSaved }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center sm:text-left">
-        <div
-          className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg overflow-hidden border border-slate-100 dark:border-slate-700 my-auto sm:my-8 text-left transition-all transform"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
-            <div>
-              <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">{isEdit ? "Edit Student" : "Add Student"}</h2>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{isEdit ? "Update student details" : "Register a new member"}</p>
-            </div>
-            <button onClick={onClose} className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
-              <MdClose size={20} />
-            </button>
+    <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 h-[88vh] max-h-[88dvh] sm:h-auto sm:max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+          <div>
+            <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base sm:text-lg">{isEdit ? "Edit Student" : "Add Student"}</h2>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{isEdit ? "Update student details" : "Register a new member"}</p>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          >
+            <MdClose size={20} />
+          </button>
+        </div>
 
-          {/* Form Body */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Form Container wrapping scrollable fields and pinned footer */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {/* Scrollable Form Body */}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 touch-pan-y"
+            style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block" htmlFor="student-name">Full Name *</label>
@@ -214,24 +222,24 @@ const StudentModal = ({ student, onClose, onSaved }) => {
                 )}
               </div>
             )}
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
-              <button type="button" onClick={onClose} className="btn-secondary flex-1">
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving || (!isEdit && availability && !availability.available)}
-                className="btn-primary flex-1 flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Saving...</>
-                ) : isEdit ? "Update Student" : "Add Student"}
-              </button>
-            </div>
-          </form>
-        </div>
+          {/* Action Footer - Pinned at Bottom, Always Visible on Mobile */}
+          <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 flex gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.3)]">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || (!isEdit && availability && !availability.available)}
+              className="btn-primary flex-1 flex items-center justify-center gap-2"
+            >
+              {saving ? (
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Saving...</>
+              ) : isEdit ? "Update Student" : "Add Student"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
