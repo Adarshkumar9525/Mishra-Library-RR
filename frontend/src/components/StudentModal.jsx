@@ -109,7 +109,7 @@ const StudentModal = ({ student, onClose, onSaved }) => {
         <form
           id="student-form"
           onSubmit={handleSubmit}
-          className="p-6 space-y-4 overflow-y-auto flex-1"
+          className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

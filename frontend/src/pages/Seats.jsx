@@ -238,7 +238,7 @@ const Seats = () => {
               </div>
             </div>
             <div
-              className="p-5 space-y-2.5 text-sm overflow-y-auto flex-1"
+              className="p-5 space-y-2.5 text-sm flex-1 min-h-0 overflow-y-auto"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
               {TIMINGS.map((t) => {

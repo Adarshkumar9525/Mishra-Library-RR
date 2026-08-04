@@ -451,7 +451,7 @@ const Payments = () => {
             <form
               id="payment-form"
               onSubmit={handleSubmit}
-              className="p-6 space-y-4 overflow-y-auto flex-1"
+              className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
               <div>
