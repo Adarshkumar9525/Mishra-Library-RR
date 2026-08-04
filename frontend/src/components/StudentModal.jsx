@@ -89,9 +89,9 @@ const StudentModal = ({ student, onClose, onSaved }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-3 pt-6 pb-6 sm:p-4 touch-none">
       <div
-        className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 h-[88vh] max-h-[88dvh] sm:h-auto sm:max-h-[90vh]"
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 h-[82vh] max-h-[82dvh] sm:h-auto sm:max-h-[90vh] transition-all transform"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -220,11 +220,11 @@ const Seats = () => {
       {/* Seat Detail Modal */}
       {selectedSeat && (
         <div
-          className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-3 pt-6 pb-6 sm:p-4 touch-none"
           onClick={() => setSelectedSeat(null)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[88dvh] sm:max-h-[90vh]"
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[82dvh] sm:max-h-[90vh] transition-all transform"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
