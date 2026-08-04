@@ -224,11 +224,11 @@ const Seats = () => {
           onClick={() => setSelectedSeat(null)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700"
-            style={{ maxHeight: "min(90vh, 90dvh)" }}
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm overflow-y-auto border border-slate-100 dark:border-slate-700"
+            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700 shrink-0">
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700">
               <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
                 <MdEventSeat size={22} />
               </div>
@@ -237,10 +237,7 @@ const Seats = () => {
                 <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
               </div>
             </div>
-            <div
-              className="p-5 space-y-2.5 text-sm flex-1 min-h-0 overflow-y-auto"
-              style={{ WebkitOverflowScrolling: "touch" }}
-            >
+            <div className="p-5 space-y-2.5 text-sm">
               {TIMINGS.map((t) => {
                 const status = statusFor(selectedSeat, t.key);
                 const student = studentFor(selectedSeat, t.key);
@@ -256,14 +253,15 @@ const Seats = () => {
                   </div>
                 );
               })}
-            </div>
-            <div className="p-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
-              <button
-                onClick={() => setSelectedSeat(null)}
-                className="btn-secondary w-full"
-              >
-                Close
-              </button>
+
+              <div className="pt-4 -mx-5 -mb-5 px-5 pb-5 sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 mt-5 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.3)] z-10">
+                <button
+                  onClick={() => setSelectedSeat(null)}
+                  className="btn-secondary w-full"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
