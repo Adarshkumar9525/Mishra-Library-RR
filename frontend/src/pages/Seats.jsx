@@ -220,47 +220,48 @@ const Seats = () => {
       {/* Seat Detail Modal */}
       {selectedSeat && (
         <div
-          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-40 overflow-y-auto"
           onClick={() => setSelectedSeat(null)}
         >
-          <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm overflow-y-auto border border-slate-100 dark:border-slate-700 modal-card-height my-auto sm:my-0"
-            style={{ maxHeight: "90vh", WebkitOverflowScrolling: "touch" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700">
-              <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
-                <MdEventSeat size={22} />
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center sm:text-left">
+            <div
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm overflow-hidden border border-slate-100 dark:border-slate-700 my-auto sm:my-8 text-left transition-all transform"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700">
+                <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
+                  <MdEventSeat size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base">Seat #{selectedSeat.seatNumber}</h3>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base">Seat #{selectedSeat.seatNumber}</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
-              </div>
-            </div>
-            <div className="p-5 space-y-2.5 text-sm">
-              {TIMINGS.map((t) => {
-                const status = statusFor(selectedSeat, t.key);
-                const student = studentFor(selectedSeat, t.key);
-                return (
-                  <div key={t.key} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 rounded-xl px-3.5 py-2.5">
-                    <div>
-                      <p className="font-semibold text-slate-700 dark:text-slate-200">{t.label}</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{student?.name || "Vacant"}</p>
+              <div className="p-5 space-y-2.5 text-sm">
+                {TIMINGS.map((t) => {
+                  const status = statusFor(selectedSeat, t.key);
+                  const student = studentFor(selectedSeat, t.key);
+                  return (
+                    <div key={t.key} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 rounded-xl px-3.5 py-2.5">
+                      <div>
+                        <p className="font-semibold text-slate-700 dark:text-slate-200">{t.label}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{student?.name || "Vacant"}</p>
+                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
+                        {status}
+                      </span>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
-                      {status}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
 
-              <div className="pt-3">
-                <button
-                  onClick={() => setSelectedSeat(null)}
-                  className="btn-secondary w-full"
-                >
-                  Close
-                </button>
+                <div className="pt-3">
+                  <button
+                    onClick={() => setSelectedSeat(null)}
+                    className="btn-secondary w-full"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>

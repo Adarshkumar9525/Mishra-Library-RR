@@ -423,11 +423,12 @@ const Payments = () => {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-y-auto border border-slate-100 dark:border-slate-700 modal-card-height my-auto sm:my-0"
-            style={{ maxHeight: "90vh", WebkitOverflowScrolling: "touch" }}
-          >
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center sm:text-left">
+            <div
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-hidden border border-slate-100 dark:border-slate-700 my-auto sm:my-8 text-left transition-all transform"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
               <div>
                 <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">
@@ -721,8 +722,8 @@ const Payments = () => {
                 />
               </div>
 
-              {/* Action Buttons - Normal flow at end of form */}
-              <div className="flex gap-3 pt-2">
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -747,6 +748,7 @@ const Payments = () => {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
