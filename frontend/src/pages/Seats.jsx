@@ -3,6 +3,7 @@ import { MdGridView, MdViewList, MdEventSeat } from "react-icons/md";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 import { TableSkeleton } from "../components/LoadingSkeleton";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 const STATUS_STYLES = {
   available: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 hover:border-emerald-300 dark:hover:border-emerald-700",
@@ -32,6 +33,7 @@ const Seats = () => {
   const [activeTiming, setActiveTiming] = useState("morning");
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedSeat, setSelectedSeat] = useState(null);
+  useBodyScrollLock(Boolean(selectedSeat));
 
   const fetchSeats = async () => {
     setLoading(true);
@@ -218,11 +220,12 @@ const Seats = () => {
       {/* Seat Detail Modal */}
       {selectedSeat && (
         <div
-          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 overflow-hidden"
           onClick={() => setSelectedSeat(null)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm p-6 border border-slate-100 dark:border-slate-700"
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm p-6 border border-slate-100 dark:border-slate-700 overflow-y-auto"
+            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-5">

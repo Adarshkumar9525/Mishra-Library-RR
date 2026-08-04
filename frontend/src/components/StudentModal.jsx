@@ -3,6 +3,8 @@ import { MdClose, MdCheckCircle, MdError } from "react-icons/md";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+
 const addDays = (dateStr, days) => {
   const d = new Date(dateStr);
   d.setDate(d.getDate() + days);
@@ -10,6 +12,7 @@ const addDays = (dateStr, days) => {
 };
 
 const StudentModal = ({ student, onClose, onSaved }) => {
+  useBodyScrollLock(true);
   const isEdit = Boolean(student);
   const [form, setForm] = useState({
     name: student?.name || "",
@@ -86,8 +89,11 @@ const StudentModal = ({ student, onClose, onSaved }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg max-h-[92vh] overflow-y-auto border border-slate-100 dark:border-slate-700">
+    <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+      <div
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-lg overflow-y-auto border border-slate-100 dark:border-slate-700"
+        style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div>
             <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">{isEdit ? "Edit Student" : "Add Student"}</h2>

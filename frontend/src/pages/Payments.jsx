@@ -2,16 +2,15 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { MdAdd, MdClose, MdReceiptLong, MdSearch, MdCalendarToday, MdPayment, MdEdit, MdDelete } from "react-icons/md";
 import toast from "react-hot-toast";
 import api from "../api/axios";
-import {
-  TableSkeleton,
-  EmptyState,
-} from "../components/LoadingSkeleton";
+import { TableSkeleton, EmptyState } from "../components/LoadingSkeleton";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  useBodyScrollLock(modalOpen);
   const [editingPayment, setEditingPayment] = useState(null);
 
   // Student search & autocomplete state for Add Payment form
@@ -424,8 +423,11 @@ const Payments = () => {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md max-h-[92vh] overflow-y-auto border border-slate-100 dark:border-slate-700">
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-y-auto border border-slate-100 dark:border-slate-700"
+            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
               <div>
                 <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">
