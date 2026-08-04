@@ -214,8 +214,8 @@ const StudentModal = ({ student, onClose, onSaved }) => {
             </div>
           )}
 
-          {/* Sticky Footer Buttons inside form */}
-          <div className="flex gap-3 pt-4 -mx-6 -mb-6 px-6 pb-6 sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 mt-6 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.3)] z-10">
+          {/* Action Buttons - Normal flow at end of form */}
+          <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="btn-secondary flex-1">
               Cancel
             </button>

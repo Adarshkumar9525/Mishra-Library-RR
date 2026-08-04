@@ -254,7 +254,7 @@ const Seats = () => {
                 );
               })}
 
-              <div className="pt-4 -mx-5 -mb-5 px-5 pb-5 sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 mt-5 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.3)] z-10">
+              <div className="pt-3">
                 <button
                   onClick={() => setSelectedSeat(null)}
                   className="btn-secondary w-full"
