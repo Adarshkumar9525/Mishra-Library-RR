@@ -224,20 +224,23 @@ const Seats = () => {
           onClick={() => setSelectedSeat(null)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm p-6 border border-slate-100 dark:border-slate-700 overflow-y-auto"
-            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-sm flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700"
+            style={{ maxHeight: "min(90vh, 90dvh)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-12 w-12 rounded-2xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center">
-                <MdEventSeat size={24} />
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100 dark:border-slate-700 shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center shrink-0">
+                <MdEventSeat size={22} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">Seat #{selectedSeat.seatNumber}</h3>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-base">Seat #{selectedSeat.seatNumber}</h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500">Shift-wise occupancy</p>
               </div>
             </div>
-            <div className="space-y-2.5 text-sm">
+            <div
+              className="p-5 space-y-2.5 text-sm overflow-y-auto flex-1"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
               {TIMINGS.map((t) => {
                 const status = statusFor(selectedSeat, t.key);
                 const student = studentFor(selectedSeat, t.key);
@@ -254,12 +257,14 @@ const Seats = () => {
                 );
               })}
             </div>
-            <button
-              onClick={() => setSelectedSeat(null)}
-              className="btn-secondary w-full mt-5"
-            >
-              Close
-            </button>
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+              <button
+                onClick={() => setSelectedSeat(null)}
+                className="btn-secondary w-full"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

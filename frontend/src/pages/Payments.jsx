@@ -425,10 +425,10 @@ const Payments = () => {
       {modalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md overflow-y-auto border border-slate-100 dark:border-slate-700"
-            style={{ maxHeight: "min(90vh, 90dvh)", WebkitOverflowScrolling: "touch" }}
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-elevated dark:shadow-none w-full max-w-md flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700"
+            style={{ maxHeight: "min(90vh, 90dvh)" }}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
               <div>
                 <h2 className="font-bold text-slate-900 dark:text-slate-100 font-heading text-lg">
                   {editingPayment ? "Edit Payment" : "Add Payment"}
@@ -449,8 +449,10 @@ const Payments = () => {
             </div>
 
             <form
+              id="payment-form"
               onSubmit={handleSubmit}
-              className="p-6 space-y-4"
+              className="p-6 space-y-4 overflow-y-auto flex-1"
+              style={{ WebkitOverflowScrolling: "touch" }}
             >
               <div>
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">
@@ -724,31 +726,34 @@ const Payments = () => {
                 />
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalOpen(false);
-                    setEditingPayment(null);
-                  }}
-                  className="btn-secondary flex-1"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2"
-                >
-                  {saving ? (
-                    <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> {editingPayment ? "Updating..." : "Saving..."}</>
-                  ) : (
-                    editingPayment ? "Update Payment" : "Record Payment"
-                  )}
-                </button>
-              </div>
             </form>
+
+            {/* Sticky Footer */}
+            <div className="flex gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setModalOpen(false);
+                  setEditingPayment(null);
+                }}
+                className="btn-secondary flex-1"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                form="payment-form"
+                disabled={saving}
+                className="btn-primary flex-1 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> {editingPayment ? "Updating..." : "Saving..."}</>
+                ) : (
+                  editingPayment ? "Update Payment" : "Record Payment"
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
