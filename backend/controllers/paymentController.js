@@ -3,11 +3,36 @@ const ApiResponse = require("../utils/apiResponse");
 const Payment = require("../models/Payment");
 const Student = require("../models/Student");
 
-// Generates a receipt number like MLR-2026-000123
+// Generates a unique receipt number like MLR-2026-000123
 const generateReceiptNumber = async () => {
   const year = new Date().getFullYear();
-  const count = await Payment.countDocuments();
-  return `MLR-${year}-${String(count + 1).padStart(6, "0")}`;
+  const prefix = `MLR-${year}-`;
+
+  // Find the last created payment for the current year
+  const lastPayment = await Payment.findOne({
+    receiptNumber: { $regex: `^${prefix}` },
+  })
+    .sort({ createdAt: -1 })
+    .select("receiptNumber")
+    .lean();
+
+  let nextNum = 1;
+  if (lastPayment && lastPayment.receiptNumber) {
+    const parts = lastPayment.receiptNumber.split("-");
+    const lastSeq = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(lastSeq)) {
+      nextNum = lastSeq + 1;
+    }
+  }
+
+  // Ensure uniqueness in case of deleted records or gap collisions
+  let candidate = `${prefix}${String(nextNum).padStart(6, "0")}`;
+  while (await Payment.exists({ receiptNumber: candidate })) {
+    nextNum++;
+    candidate = `${prefix}${String(nextNum).padStart(6, "0")}`;
+  }
+
+  return candidate;
 };
 
 // @desc    Get all payments (paginated + filterable)
@@ -56,6 +81,19 @@ const createPayment = asyncHandler(async (req, res) => {
 
   const receiptNumber = await generateReceiptNumber();
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  let finalPaidAt = Date.now();
+  if (paidAt) {
+    const parsed = new Date(paidAt);
+    if (!isNaN(parsed.getTime())) {
+      if (paidAt === todayStr || parsed.toISOString().slice(0, 10) === todayStr) {
+        finalPaidAt = new Date();
+      } else {
+        finalPaidAt = parsed;
+      }
+    }
+  }
+
   const payment = await Payment.create({
     student: studentId,
     amount,
@@ -63,7 +101,8 @@ const createPayment = asyncHandler(async (req, res) => {
     forMonth,
     remarks,
     receiptNumber,
-    paidAt: paidAt ? new Date(paidAt) : Date.now(),
+    paidAt: finalPaidAt,
+    status: "success",
   });
 
   // Update student fee status - if they've paid for the current cycle
@@ -169,9 +208,18 @@ const getStudentPaymentHistory = asyncHandler(async (req, res) => {
 // @access  Private
 const getCollectionSummary = asyncHandler(async (req, res) => {
   const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const utcStartOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+  const localStartOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  localStartOfToday.setHours(0, 0, 0, 0);
+  const startOfToday = new Date(Math.min(utcStartOfToday.getTime(), localStartOfToday.getTime()));
+
+  const utcStartOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  const localStartOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  localStartOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(Math.min(utcStartOfMonth.getTime(), localStartOfMonth.getTime()));
+
   const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const currentMonthStr = now.toISOString().slice(0, 7);
 
   const sum = async (from) =>
     (
@@ -181,9 +229,25 @@ const getCollectionSummary = asyncHandler(async (req, res) => {
       ])
     )[0]?.total || 0;
 
+  const monthSum = async () =>
+    (
+      await Payment.aggregate([
+        {
+          $match: {
+            $or: [
+              { paidAt: { $gte: startOfMonth } },
+              { forMonth: currentMonthStr }
+            ],
+            status: "success"
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ])
+    )[0]?.total || 0;
+
   const [today, month, year, total] = await Promise.all([
     sum(startOfToday),
-    sum(startOfMonth),
+    monthSum(),
     sum(startOfYear),
     sum(new Date(0)),
   ]);

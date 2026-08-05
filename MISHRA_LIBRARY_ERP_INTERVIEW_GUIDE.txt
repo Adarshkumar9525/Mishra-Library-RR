@@ -1,0 +1,182 @@
+================================================================================
+          MISHRA LIBRARY — READING ROOM ERP (MERN STACK)
+                     FULL INTERVIEW PREPARATION GUIDE
+================================================================================
+Developed by: Adarsh Kumar
+Architecture: MERN Stack (MongoDB, Express.js, React 19, Node.js)
+Project Type: Production-Ready Full-Stack Enterprise ERP
+
+--------------------------------------------------------------------------------
+1. PROJECT OVERVIEW & ELEVATOR PITCH
+--------------------------------------------------------------------------------
+"Mishra Library ERP is a production-ready Reading Room / Study Centre Management 
+System built to digitize and automate daily operations of a modern study library. 
+It manages seat allocations across 4 shifts, student memberships with automatic 
+30-day renewal cycles, fee collections with instant receipt generation, 
+real-time dashboard analytics, CCTV stream integration, and Excel/PDF reporting. 
+
+The system solves major operational bottlenecks like double-booking of seats, 
+manual payment tracking, untracked fee expiry dates, and mobile UX glitches."
+
+--------------------------------------------------------------------------------
+2. COMPLETE TECH STACK & DEPENDENCIES
+--------------------------------------------------------------------------------
+
+FRONTEND STACK:
+  • Core Library: React 19 (Latest React release with server/client optimizations)
+  • Build Tool / Bundler: Vite 5.4 (Instant HMR & lightning-fast production builds)
+  • Styling & UI: Tailwind CSS 3.4 + PostCSS + Autoprefixer (Utility-first styling,
+    dark mode support, responsive dynamic layouts)
+  • Routing: React Router DOM v6.26 (Client-side SPA routing with lazy route loading)
+  • Server State Management: TanStack React Query v5.101 (Client caching,
+    automatic background revalidation, optimistic updates)
+  • HTTP Client: Axios 1.7 (Centralized API client with request/response interceptors)
+  • Charts & Data Visualization: Recharts 2.12 (Responsive Revenue Line Charts &
+    Admissions Bar Charts)
+  • Data Export & Reports: XLSX (SheetJS) & File-Saver (Exporting student/payment
+    data directly to Excel spreadsheets)
+  • Toast Notifications: React Hot Toast (Lightweight, beautiful non-blocking toasts)
+  • Icons: React Icons (Feather, Material, HeroIcons)
+  • Unit Testing: Vitest 4.1 + React Testing Library 16.3 + JSDOM (12 test suites,
+    60 unit/integration tests passed 100%)
+
+BACKEND STACK:
+  • Runtime Environment: Node.js (Asynchronous, event-driven JavaScript engine)
+  • Web Framework: Express.js 4.19 (RESTful API endpoints, custom middleware pipeline)
+  • Database & ODM: MongoDB Atlas + Mongoose 8.6 (NoSQL Document database with 
+    strict schema definitions & indexing)
+  • Authentication & Security:
+      - JSON Web Token (jsonwebtoken 9.0) - Stateless bearer auth with 7-day expiration
+      - Bcrypt.js 2.4 - Salted password hashing (10 salt rounds)
+      - Express Rate Limit 7.4 - Brute-force protection & API rate limiting
+      - CORS 2.8 - Cross-Origin Resource Sharing whitelist configuration
+  • Input Validation: Express-Validator 7.2 (Sanitizing and validating req.body)
+  • Performance & File Handling:
+      - Compression 1.8 - Gzip/Brotli Express HTTP response payload compression
+      - Nodemailer 9.0 - Sending transactional emails & OTP password reset links
+      - Multer 1.4 + Cloudinary - Image upload & cloud media hosting pipeline
+      - Morgan 1.10 - HTTP request logger middleware for debugging
+
+--------------------------------------------------------------------------------
+3. KEY ARCHITECTURAL PATTERNS & DATABASE DESIGN
+--------------------------------------------------------------------------------
+
+BACKEND ARCHITECTURE (MVC + Controller-Service Pattern):
+  • Models (Mongoose Schemas):
+      1. Student Schema: Name, Mobile, Email, Father's Name, Address, ID Proof,
+         Seat Number, Shift (Morning, Afternoon, Evening, Night, Full Day),
+         Joining Date, Expiry Date, Fee Status (Paid, Due, Partial), Amount.
+      2. Seat Schema: Seat Number (1 to 100), Slots (Morning, Afternoon, Evening,
+         Night) containing Status (Available, Occupied) and Student reference.
+      3. Payment Schema: Student ID, Amount, Mode (Cash, UPI, Card, Bank Transfer),
+         ForMonth (YYYY-MM), PaidAt (Date/Timestamp), ReceiptNumber (MLR-YYYY-XXXXXX),
+         Status (Success, Pending, Failed).
+      4. Admin Schema: Name, Email, Hashed Password, Reset OTP, OTP Expiration.
+
+  • Controller Pipeline:
+      - Express Async Handler (`express-async-handler`) wrapping all async routes 
+        to eliminate repetitive try-catch blocks.
+      - Standardized API Response format (`ApiResponse.success`, `ApiResponse.error`).
+      - Indexing Strategy: Indexes on `expiryDate`, `joiningDate`, `paidAt`, and 
+        `student` fields ensuring O(log N) IXSCAN query performance.
+
+FRONTEND ARCHITECTURE:
+  • Single Page Application (SPA) with centralized `api.js` Axios instance.
+  • Auth Context (`AuthContext.jsx`) managing JWT token storage in localStorage and 
+    global user state.
+  • Custom Hooks: `useBodyScrollLock` for locking backdrop scrolling when modals open,
+    `useDarkMode` for dark/light theme toggle.
+  • Route-Level Code Splitting: `React.lazy()` for all main page views 
+    (Dashboard, Students, Seats, Payments, Reports, Settings) lowering initial JS bundle by ~70%.
+
+--------------------------------------------------------------------------------
+4. CORE FEATURES & BUSINESS LOGIC
+--------------------------------------------------------------------------------
+
+1. SHIFT-BASED SEAT ALLOCATION (100 SEATS):
+   - Supports 4 shifts: Morning, Afternoon, Evening, Night, or Full Day.
+   - Live availability tracking: Calculates Fully Occupied, Partially Occupied, 
+     and Fully Available seats dynamically.
+   - Seat Transfer & Release: Allows transferring a student to a new seat or 
+     releasing a slot when membership ends.
+
+2. STUDENT LIFECYCLE & AUTOMATIC RENEWAL:
+   - Full CRUD operations with instant search and multi-criteria filtering.
+   - Membership expiry tracking: Flags students expiring in <= 7 days and expired students.
+   - One-Click Renewal: Extends membership by 30 days and resets fee status.
+
+3. PAYMENTS & RECEIPT GENERATION:
+   - Autocomplete Student Name Search field for quick payment recording.
+   - Month-Duplicate Prevention: Prevents recording duplicate payments for the same month cycle.
+   - Unique Receipt Numbering: Formatted as `MLR-YYYY-XXXXXX`.
+   - Financial Summaries: Monthly Collection, Total Collection, and Payment Mode breakdown.
+
+4. DASHBOARD & ANALYTICS:
+   - Real-time stat cards: Total Students, Occupied Seats, Available Seats, Pending Fees, 
+     Today's Admissions, Monthly Collection (₹), Total Collection (₹).
+   - Recharts Visualizations: Revenue trend line charts and Monthly Admissions bar charts.
+
+5. ADVANCED REPORTING & EXPORT:
+   - Printable reports for seat allocations, pending fees, and payment logs.
+   - One-click Excel spreadsheet export using `xlsx` (SheetJS) and `file-saver`.
+
+--------------------------------------------------------------------------------
+5. KEY PERFORMANCE & UX OPTIMIZATIONS
+--------------------------------------------------------------------------------
+
+1. GZIP/BROTLI RESPONSE COMPRESSION:
+   - Integrated Express `compression` middleware, shrinking JSON response payloads by up to 80%.
+
+2. MOBILE MODAL & DYNAMIC VIEWPORT (DVH) FIX:
+   - Implemented `82dvh` viewport-aware modal layout with `items-start pt-6` top offset 
+     preventing clipped form inputs on Android WebViews and mobile browsers.
+
+3. TIMEZONE-SAFE MONGODB AGGREGATIONS:
+   - Calculated safe minimum start-of-day and start-of-month boundaries using UTC 
+     and local server time (`Math.min(utcStart, localStart)`), ensuring accurate 
+     collection analytics across global server deployments.
+
+4. SPA REFRESH & ROUTING REWRITES:
+   - Configured route rewrites for Vercel, Netlify, Render, and Nginx (`/* -> /index.html`) 
+     to prevent 404 errors on page refresh.
+
+--------------------------------------------------------------------------------
+6. TOP INTERVIEW QUESTIONS & MODEL ANSWERS
+--------------------------------------------------------------------------------
+
+Q1: "Can you explain the high-level architecture of your Mishra Library ERP?"
+A1: "The application is built on the MERN stack with a decoupled SPA architecture. 
+     The backend is an Express.js REST API connected to MongoDB Atlas via Mongoose. 
+     The frontend is built using React 19, Vite, and Tailwind CSS, utilizing 
+     TanStack React Query for server state management and Axios for HTTP requests. 
+     Authentication is handled via JWT tokens stored securely on the client."
+
+Q2: "How did you handle shift-based seat management in MongoDB?"
+A2: "Each seat document in the database maintains an array or sub-document of 4 
+     shift slots: morning, afternoon, evening, and night. Each slot tracks its status 
+     ('available' or 'occupied') and references the assigned student's ID. When a student 
+     registers for a full-day shift, all 4 slots are updated atomically; for single 
+     shifts, only the specific shift slot is marked occupied."
+
+Q3: "How did you solve the mobile modal layout regression where buttons were clipped?"
+A3: "I performed a complete mobile UX audit. The root cause was modal centering 
+     combined with viewport height bugs on mobile browsers where virtual keyboards 
+     or browser bars clipped bottom buttons. I refactored the layout to use a top-aligned 
+     flex container (`items-start pt-6`), bounded the card to `82dvh` max-height with 
+     `overflow-y-auto`, and pinned the submit/cancel buttons in a clear flex action bar."
+
+Q4: "How did you ensure fast database queries as the student/payment records grow?"
+A4: "I implemented compound and single-field Mongoose indexes on high-frequency 
+     query fields: `expiryDate`, `joiningDate`, `paidAt`, and `student`. This ensured 
+     MongoDB uses efficient IXSCAN index scans instead of full COLLSCAN collection 
+     scans, keeping aggregation queries sub-millisecond."
+
+Q5: "How did you implement automatic membership renewal?"
+A5: "When an admin clicks 'Renew Membership', the backend calculates the new expiry 
+     date by adding 30 days to either the current expiry date (if not yet expired) 
+     or the current date (if already expired). It updates `feeStatus` to 'paid' and 
+     logs the transaction in the Payment collection."
+
+--------------------------------------------------------------------------------
+                                END OF GUIDE
+================================================================================

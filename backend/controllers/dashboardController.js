@@ -9,9 +9,19 @@ const Payment = require("../models/Payment");
 // @access  Private
 const getStats = asyncHandler(async (req, res) => {
   const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const utcStartOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+  const localStartOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  localStartOfToday.setHours(0, 0, 0, 0);
+  const startOfToday = new Date(Math.min(utcStartOfToday.getTime(), localStartOfToday.getTime()));
+
+  const utcStartOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  const localStartOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  localStartOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(Math.min(utcStartOfMonth.getTime(), localStartOfMonth.getTime()));
+
   const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const currentMonthStr = now.toISOString().slice(0, 7);
 
   const [
     totalStudents,
@@ -84,7 +94,15 @@ const getStats = asyncHandler(async (req, res) => {
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]),
     Payment.aggregate([
-      { $match: { paidAt: { $gte: startOfMonth }, status: "success" } },
+      {
+        $match: {
+          $or: [
+            { paidAt: { $gte: startOfMonth } },
+            { forMonth: currentMonthStr }
+          ],
+          status: "success"
+        }
+      },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]),
     Payment.aggregate([

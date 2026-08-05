@@ -151,7 +151,6 @@ const Dashboard = () => {
             <StatCard icon={MdEventSeat} label="Fully Available Seats" value={`${stats?.fullyAvailableSeats ?? stats?.availableSeats ?? 100}/${stats?.totalSeats ?? 100}`} accent="emerald" />
             <StatCard icon={MdWarningAmber} label="Pending Fees" value={stats?.pendingFeeCount ?? 0} accent="amber" />
             <StatCard icon={MdPersonAdd} label="Today's Admissions" value={stats?.todayAdmissions ?? 0} accent="primary" />
-            <StatCard icon={MdCurrencyRupee} label="Today's Collection" value={stats?.todayCollection ?? 0} suffix="₹" accent="emerald" />
             <StatCard icon={MdCurrencyRupee} label="Monthly Collection" value={stats?.monthlyCollection ?? 0} suffix="₹" accent="emerald" />
             <StatCard icon={MdTrendingUp} label="Total Collection" value={stats?.totalCollection ?? 0} suffix="₹" accent="primary" />
             <StatCard icon={MdWarningAmber} label="Expiring in 7 Days" value={stats?.expiringSoon ?? 0} accent="rose" />
