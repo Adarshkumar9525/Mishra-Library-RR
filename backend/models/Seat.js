@@ -49,9 +49,14 @@ seatSchema.statics.resolveTimings = function (timing) {
 };
 
 // Checks whether this seat is free for the given timing (no overlap with existing bookings).
-seatSchema.methods.isAvailableFor = function (timing) {
+seatSchema.methods.isAvailableFor = function (timing, ignoreStudentId = null) {
   const timings = this.constructor.resolveTimings(timing);
-  return timings.every((t) => this.slots[t].status === "available");
+  return timings.every((t) => {
+    const slot = this.slots[t];
+    if (slot.status === "available") return true;
+    if (ignoreStudentId && slot.student && slot.student.toString() === ignoreStudentId.toString()) return true;
+    return false;
+  });
 };
 
 seatSchema.index({ "slots.morning.status": 1 });

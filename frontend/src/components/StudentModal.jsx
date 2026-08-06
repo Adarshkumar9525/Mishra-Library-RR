@@ -46,14 +46,14 @@ const StudentModal = ({ student, onClose, onSaved }) => {
   // Live-check whether the chosen seat is free for the chosen shift, so the admin
   // finds out about a shift conflict before submitting (not just on error toast).
   const checkAvailability = useCallback(async () => {
-    if (isEdit || !form.seatNumber) {
+    if (!form.seatNumber) {
       setAvailability(null);
       return;
     }
     setChecking(true);
     try {
       const res = await api.get(`/seats/${form.seatNumber}/availability`, {
-        params: { timing: form.timing },
+        params: { timing: form.timing, studentId: student?._id },
       });
       setAvailability(res.data.data);
     } catch {
@@ -61,7 +61,7 @@ const StudentModal = ({ student, onClose, onSaved }) => {
     } finally {
       setChecking(false);
     }
-  }, [form.seatNumber, form.timing, isEdit]);
+  }, [form.seatNumber, form.timing, student?._id]);
 
   useEffect(() => {
     const t = setTimeout(checkAvailability, 350);
@@ -204,7 +204,7 @@ const StudentModal = ({ student, onClose, onSaved }) => {
               </div>
             </div>
 
-            {!isEdit && form.seatNumber && (
+            {form.seatNumber && (checking || availability !== null) && (
               <div
                 className={`flex items-center gap-2 text-sm px-3.5 py-2.5 rounded-xl border ${
                   checking
@@ -236,7 +236,7 @@ const StudentModal = ({ student, onClose, onSaved }) => {
             </button>
             <button
               type="submit"
-              disabled={saving || (!isEdit && availability && !availability.available)}
+              disabled={saving || (availability && !availability.available)}
               className="btn-primary flex-1 flex items-center justify-center gap-2"
             >
               {saving ? (

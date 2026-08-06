@@ -107,26 +107,103 @@ const createStudent = asyncHandler(async (req, res) => {
   return ApiResponse.success(res, 201, "Student added successfully", student);
 });
 
-// @desc    Update student details
+// @desc    Update student details (handles info updates, shift/timing changes, and seat updates)
 // @route   PUT /api/students/:id
 // @access  Private
 const updateStudent = asyncHandler(async (req, res) => {
   const student = await Student.findById(req.params.id);
   if (!student) return ApiResponse.error(res, 404, "Student not found");
 
-  const { joiningDate, expiryDate, seatNumber, ...rest } = req.body;
-  // seatNumber changes must go through the seat transfer flow, not a plain field update
+  const { joiningDate, expiryDate, seatNumber: newSeatNumberInput, timing: newTimingInput, ...rest } = req.body;
+
+  const oldTiming = student.timing;
+  const oldSeatId = student.seat;
+  const oldSeatNumber = student.seatNumber;
+
+  const newTiming = newTimingInput || oldTiming;
+  const newSeatNumber =
+    newSeatNumberInput !== undefined && newSeatNumberInput !== "" ? Number(newSeatNumberInput) : oldSeatNumber;
+
+  const isTimingChanged = newTiming !== oldTiming;
+  const isSeatChanged = newSeatNumber !== oldSeatNumber;
+
+  if (isTimingChanged || isSeatChanged) {
+    // 1. Resolve target seat (either new seat if seat number changed, or current seat)
+    const targetSeat = isSeatChanged
+      ? await Seat.findOne({ seatNumber: newSeatNumber })
+      : (oldSeatId
+          ? await Seat.findById(oldSeatId)
+          : (oldSeatNumber ? await Seat.findOne({ seatNumber: oldSeatNumber }) : null));
+
+    if (!targetSeat) {
+      return ApiResponse.error(res, 404, `Seat #${newSeatNumber} not found`);
+    }
+
+    // 2. Check if target seat is free for newTiming (ignoring current student's existing slots)
+    if (!targetSeat.isAvailableFor(newTiming, student._id)) {
+      return ApiResponse.error(
+        res,
+        400,
+        `Seat #${targetSeat.seatNumber} is already booked for an overlapping shift for the ${newTiming} timing`
+      );
+    }
+
+    // 3. Free up old timing slots on old seat held by this student
+    const oldSeat = oldSeatId
+      ? await Seat.findById(oldSeatId)
+      : (oldSeatNumber ? await Seat.findOne({ seatNumber: oldSeatNumber }) : null);
+
+    if (oldSeat) {
+      const oldTimingsToFree = Seat.resolveTimings(oldTiming);
+      oldTimingsToFree.forEach((t) => {
+        if (oldSeat.slots[t].student && oldSeat.slots[t].student.toString() === student._id.toString()) {
+          oldSeat.slots[t].status = "available";
+          oldSeat.slots[t].student = null;
+        }
+      });
+
+      if (isSeatChanged) {
+        oldSeat.history.push({
+          student: student._id,
+          timing: oldTiming,
+          assignedDate: student.joiningDate,
+          vacatedDate: new Date(),
+          reason: "transfer",
+        });
+      }
+
+      await oldSeat.save();
+    }
+
+    // 4. Occupy new timing slots on targetSeat
+    // If targetSeat is the same document as oldSeat, use oldSeat reference so we don't overwrite freed slots with stale targetSeat data
+    const activeSeat = oldSeat && oldSeat._id.toString() === targetSeat._id.toString() ? oldSeat : targetSeat;
+
+    const newTimingsToOccupy = Seat.resolveTimings(newTiming);
+    newTimingsToOccupy.forEach((t) => {
+      activeSeat.slots[t].status = "occupied";
+      activeSeat.slots[t].student = student._id;
+    });
+
+    await activeSeat.save();
+
+    student.seat = activeSeat._id;
+    student.seatNumber = activeSeat.seatNumber;
+    student.timing = newTiming;
+  }
+
+  // Update remaining student fields
   Object.assign(student, rest);
 
-  const joiningDateChanged = joiningDate && new Date(joiningDate).getTime() !== student.joiningDate.getTime();
+  const joiningDateChanged = joiningDate && new Date(joiningDate).getTime() !== new Date(student.joiningDate).getTime();
 
   if (joiningDate) student.joiningDate = new Date(joiningDate);
 
   if (expiryDate) {
-    // Explicit expiry override (e.g. admin manually adjusting it) always wins
+    // Explicit expiry override always wins
     student.expiryDate = new Date(expiryDate);
   } else if (joiningDateChanged) {
-    // No explicit expiry sent, but joining date changed - recompute the default 30-day cycle
+    // Recompute default 30-day cycle if joining date changed without explicit expiry
     const recalculated = new Date(student.joiningDate);
     recalculated.setDate(recalculated.getDate() + 30);
     student.expiryDate = recalculated;

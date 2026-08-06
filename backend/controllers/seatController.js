@@ -39,16 +39,16 @@ const getSeatById = asyncHandler(async (req, res) => {
   return ApiResponse.success(res, 200, "Seat fetched", seat);
 });
 
-// @desc    Check seat availability for a given timing (used by the admission form)
-// @route   GET /api/seats/:seatNumber/availability?timing=morning
+// @desc    Check seat availability for a given timing (used by the admission & edit form)
+// @route   GET /api/seats/:seatNumber/availability?timing=morning&studentId=...
 // @access  Private
 const checkAvailability = asyncHandler(async (req, res) => {
-  const { timing = "full-day" } = req.query;
+  const { timing = "full-day", studentId } = req.query;
   const seat = await Seat.findOne({ seatNumber: req.params.seatNumber });
 
   if (!seat) return ApiResponse.error(res, 404, "Seat not found");
 
-  const available = seat.isAvailableFor(timing);
+  const available = seat.isAvailableFor(timing, studentId);
   return ApiResponse.success(res, 200, "Availability checked", { available, seatNumber: seat.seatNumber, timing });
 });
 
@@ -93,7 +93,7 @@ const transferSeat = asyncHandler(async (req, res) => {
 
   const timings = Seat.resolveTimings(student.timing);
 
-  if (!newSeat.isAvailableFor(student.timing)) {
+  if (!newSeat.isAvailableFor(student.timing, student._id)) {
     return ApiResponse.error(
       res,
       400,
