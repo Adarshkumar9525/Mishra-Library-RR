@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { MdGridView, MdViewList, MdEventSeat } from "react-icons/md";
+import { MdGridView, MdViewList, MdEventSeat, MdSwapHoriz } from "react-icons/md";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 import { TableSkeleton } from "../components/LoadingSkeleton";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import ChangeSeatModal from "../components/ChangeSeatModal";
 
 const STATUS_STYLES = {
   available: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 hover:border-emerald-300 dark:hover:border-emerald-700",
@@ -33,7 +34,25 @@ const Seats = () => {
   const [activeTiming, setActiveTiming] = useState("morning");
   const [filterStatus, setFilterStatus] = useState("");
   const [selectedSeat, setSelectedSeat] = useState(null);
+  const [changingSeatStudent, setChangingSeatStudent] = useState(null);
   useBodyScrollLock(Boolean(selectedSeat));
+
+  const handleTransferStudent = async (studentData, timingKey) => {
+    if (!studentData?._id) return;
+    try {
+      const res = await api.get(`/students/${studentData._id}`);
+      setChangingSeatStudent(res.data.data);
+    } catch {
+      setChangingSeatStudent({
+        _id: studentData._id,
+        name: studentData.name || "Student",
+        seatNumber: selectedSeat?.seatNumber,
+        timing: timingKey || "full-day",
+      });
+    } finally {
+      setSelectedSeat(null);
+    }
+  };
 
   const fetchSeats = async () => {
     setLoading(true);
@@ -249,9 +268,21 @@ const Seats = () => {
                       <p className="font-semibold text-slate-700 dark:text-slate-200">{t.label}</p>
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{student?.name || "Vacant"}</p>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
-                      {status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${STATUS_BADGE[status]}`}>
+                        {status}
+                      </span>
+                      {student && (
+                        <button
+                          type="button"
+                          onClick={() => handleTransferStudent(student, t.key)}
+                          className="p-1.5 rounded-lg bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/60 transition-colors flex items-center justify-center"
+                          title="Transfer this student"
+                        >
+                          <MdSwapHoriz size={16} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -266,6 +297,14 @@ const Seats = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {changingSeatStudent && (
+        <ChangeSeatModal
+          student={changingSeatStudent}
+          onClose={() => setChangingSeatStudent(null)}
+          onTransferred={fetchSeats}
+        />
       )}
     </div>
   );

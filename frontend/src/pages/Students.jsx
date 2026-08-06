@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MdAdd, MdSearch, MdEdit, MdDelete, MdRefresh, MdPeopleOutline, MdPhone } from "react-icons/md";
+import { MdAdd, MdSearch, MdEdit, MdDelete, MdRefresh, MdPeopleOutline, MdPhone, MdSwapHoriz } from "react-icons/md";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 import StatusBadge from "../components/StatusBadge";
 import StudentModal from "../components/StudentModal";
+import ChangeSeatModal from "../components/ChangeSeatModal";
 import { TableSkeleton, EmptyState } from "../components/LoadingSkeleton";
 
 const Students = () => {
@@ -19,6 +20,7 @@ const Students = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [changingSeatStudent, setChangingSeatStudent] = useState(null);
 
   // Sync state if URL search param changes (e.g. user submits a new search from Navbar)
   useEffect(() => {
@@ -185,6 +187,13 @@ const Students = () => {
                       Renew 30d
                     </button>
                     <button
+                      onClick={() => setChangingSeatStudent(s)}
+                      className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 min-h-[38px] min-w-[38px] flex items-center justify-center"
+                      title="Change Seat"
+                    >
+                      <MdSwapHoriz size={16} />
+                    </button>
+                    <button
                       onClick={() => {
                         setEditingStudent(s);
                         setModalOpen(true);
@@ -258,6 +267,13 @@ const Students = () => {
                             Renew
                           </button>
                           <button
+                            onClick={() => setChangingSeatStudent(s)}
+                            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/60 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                            title="Change Seat"
+                          >
+                            <MdSwapHoriz size={16} />
+                          </button>
+                          <button
                             onClick={() => {
                               setEditingStudent(s);
                               setModalOpen(true);
@@ -313,6 +329,14 @@ const Students = () => {
           student={editingStudent}
           onClose={() => setModalOpen(false)}
           onSaved={fetchStudents}
+        />
+      )}
+
+      {changingSeatStudent && (
+        <ChangeSeatModal
+          student={changingSeatStudent}
+          onClose={() => setChangingSeatStudent(null)}
+          onTransferred={fetchStudents}
         />
       )}
     </div>

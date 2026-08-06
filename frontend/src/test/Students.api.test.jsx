@@ -163,4 +163,20 @@ describe("Students API Tests", () => {
       expect(toast.error).toHaveBeenCalledWith("Renewal failed");
     }, { timeout: 3000 });
   });
+
+  it("opens Change Seat modal when clicking Change Seat action button", async () => {
+    render(<Students />);
+
+    await waitFor(() => {
+      expect(screen.getAllByTitle("Change Seat")[0]).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    const changeSeatBtn = screen.getAllByTitle("Change Seat")[0];
+    fireEvent.click(changeSeatBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Change Seat")).toBeInTheDocument();
+      expect(screen.getByText("Currently: Seat #5")).toBeInTheDocument();
+    });
+  });
 });

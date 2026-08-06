@@ -148,6 +148,11 @@ const StudentModal = ({ student, onClose, onSaved }) => {
                   className="input-field disabled:bg-slate-50 dark:disabled:bg-slate-900"
                   placeholder="1 to 100"
                 />
+                {isEdit && (
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    Use the seat/swap icon on the Students list to change seats
+                  </p>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1 block">Address</label>
